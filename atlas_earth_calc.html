@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlas Earth Earnings</title>
+
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    background: #f2f2f7;
+    margin: 0;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  .card {
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+  label {
+    font-weight: 600;
+    display: block;
+    margin-top: 10px;
+  }
+  input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    margin-top: 4px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+  }
+  .result {
+    font-size: 18px;
+    margin: 8px 0;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>Atlas Earth Earnings</h1>
+
+<div class="card">
+  <label>Common Parcels</label>
+  <input type="number" id="common" value="0">
+
+  <label>Rare Parcels</label>
+  <input type="number" id="rare" value="0">
+
+  <label>Epic Parcels</label>
+  <input type="number" id="epic" value="0">
+
+  <label>Legendary Parcels</label>
+  <input type="number" id="legendary" value="0">
+</div>
+
+<div class="card">
+  <div class="result" id="zero"></div>
+  <div class="result" id="thirty"></div>
+  <div class="result" id="fifty"></div>
+</div>
+
+<script>
+const rates = {
+  common: 0.0000000011,
+  rare: 0.0000000016,
+  epic: 0.0000000022,
+  legendary: 0.0000000044
+};
+
+const secondsPerDay = 86400;
+
+function calculate() {
+  const common = Number(document.getElementById("common").value) || 0;
+  const rare = Number(document.getElementById("rare").value) || 0;
+  const epic = Number(document.getElementById("epic").value) || 0;
+  const legendary = Number(document.getElementById("legendary").value) || 0;
+
+  const ratePerSecond =
+    common * rates.common +
+    rare * rates.rare +
+    epic * rates.epic +
+    legendary * rates.legendary;
+
+  const daily = ratePerSecond * secondsPerDay;
+
+  document.getElementById("zero").textContent =
+    `0× Bonus: $${daily.toFixed(6)} / day`;
+  document.getElementById("thirty").textContent =
+    `30× Bonus: $${(daily * 30).toFixed(6)} / day`;
+  document.getElementById("fifty").textContent =
+    `50× Bonus: $${(daily * 50).toFixed(6)} / day`;
+}
+
+document.querySelectorAll("input").forEach(input =>
+  input.addEventListener("input", calculate)
+);
+
+calculate();
+</script>
+
+</body>
+</html>
