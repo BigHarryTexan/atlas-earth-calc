@@ -35,8 +35,12 @@
     border: 1px solid #ccc;
   }
   .result {
-    font-size: 18px;
-    margin: 8px 0;
+    font-size: 17px;
+    margin: 6px 0;
+  }
+  .section-title {
+    font-weight: 700;
+    margin-top: 12px;
   }
 </style>
 </head>
@@ -60,9 +64,15 @@
 </div>
 
 <div class="card">
+  <div class="section-title">Daily Earnings</div>
   <div class="result" id="zero"></div>
   <div class="result" id="thirty"></div>
   <div class="result" id="fifty"></div>
+
+  <div class="section-title">Time to $1</div>
+  <div class="result" id="zeroTime"></div>
+  <div class="result" id="thirtyTime"></div>
+  <div class="result" id="fiftyTime"></div>
 </div>
 
 <script>
@@ -74,6 +84,12 @@ const rates = {
 };
 
 const secondsPerDay = 86400;
+
+function formatTime(days) {
+  if (!isFinite(days) || days <= 0) return "—";
+  if (days >= 1) return `${days.toFixed(2)} days`;
+  return `${(days * 24).toFixed(2)} hours`;
+}
 
 function calculate() {
   const common = Number(document.getElementById("common").value) || 0;
@@ -89,12 +105,22 @@ function calculate() {
 
   const daily = ratePerSecond * secondsPerDay;
 
+  const daily30 = daily * 30;
+  const daily50 = daily * 50;
+
   document.getElementById("zero").textContent =
     `0× Bonus: $${daily.toFixed(6)} / day`;
   document.getElementById("thirty").textContent =
-    `30× Bonus: $${(daily * 30).toFixed(6)} / day`;
+    `30× Bonus: $${daily30.toFixed(6)} / day`;
   document.getElementById("fifty").textContent =
-    `50× Bonus: $${(daily * 50).toFixed(6)} / day`;
+    `50× Bonus: $${daily50.toFixed(6)} / day`;
+
+  document.getElementById("zeroTime").textContent =
+    `0× Bonus: ${formatTime(1 / daily)}`;
+  document.getElementById("thirtyTime").textContent =
+    `30× Bonus: ${formatTime(1 / daily30)}`;
+  document.getElementById("fiftyTime").textContent =
+    `50× Bonus: ${formatTime(1 / daily50)}`;
 }
 
 document.querySelectorAll("input").forEach(input =>
