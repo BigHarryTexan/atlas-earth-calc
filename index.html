@@ -12,9 +12,7 @@
     margin: 0;
     padding: 20px;
   }
-  h1 {
-    text-align: center;
-  }
+  h1 { text-align: center; }
   .card {
     background: white;
     padding: 16px;
@@ -51,28 +49,32 @@
 
 <div class="card">
   <label>Common Parcels</label>
-  <input type="number" id="common" value="0">
+  <input type="number" id="common" inputmode="numeric" pattern="[0-9]*">
 
   <label>Rare Parcels</label>
-  <input type="number" id="rare" value="0">
+  <input type="number" id="rare" inputmode="numeric" pattern="[0-9]*">
 
   <label>Epic Parcels</label>
-  <input type="number" id="epic" value="0">
+  <input type="number" id="epic" inputmode="numeric" pattern="[0-9]*">
 
   <label>Legendary Parcels</label>
-  <input type="number" id="legendary" value="0">
+  <input type="number" id="legendary" inputmode="numeric" pattern="[0-9]*">
+
+  <label>Passport Badges</label>
+  <input type="number" id="badges" inputmode="numeric" pattern="[0-9]*">
 </div>
 
 <div class="card">
+  <div class="section-title">Multipliers</div>
+  <div class="result" id="propertyMult"></div>
+  <div class="result" id="badgeBoost"></div>
+  <div class="result" id="effectiveMult"></div>
+
   <div class="section-title">Daily Earnings</div>
-  <div class="result" id="zero"></div>
-  <div class="result" id="thirty"></div>
-  <div class="result" id="fifty"></div>
+  <div class="result" id="daily"></div>
 
   <div class="section-title">Time to $1</div>
-  <div class="result" id="zeroTime"></div>
-  <div class="result" id="thirtyTime"></div>
-  <div class="result" id="fiftyTime"></div>
+  <div class="result" id="timeToDollar"></div>
 </div>
 
 <script>
@@ -85,6 +87,24 @@ const rates = {
 
 const secondsPerDay = 86400;
 
+function getPropertyMultiplier(total) {
+  if (total <= 150) return 30;
+  if (total <= 220) return 20;
+  if (total <= 300) return 15;
+  if (total <= 400) return 10;
+  if (total <= 500) return 5;
+  return 1;
+}
+
+function getBadgeBoost(badges) {
+  if (badges >= 101) return 0.25;
+  if (badges >= 61) return 0.20;
+  if (badges >= 31) return 0.15;
+  if (badges >= 11) return 0.10;
+  if (badges >= 1) return 0.05;
+  return 0;
+}
+
 function formatTime(days) {
   if (!isFinite(days) || days <= 0) return "—";
   if (days >= 1) return `${days.toFixed(2)} days`;
@@ -96,6 +116,13 @@ function calculate() {
   const rare = Number(document.getElementById("rare").value) || 0;
   const epic = Number(document.getElementById("epic").value) || 0;
   const legendary = Number(document.getElementById("legendary").value) || 0;
+  const badges = Number(document.getElementById("badges").value) || 0;
+
+  const totalParcels = common + rare + epic + legendary;
+
+  const baseMult = getPropertyMultiplier(totalParcels);
+  const boost = getBadgeBoost(badges);
+  const effectiveMult = baseMult * (1 + boost);
 
   const ratePerSecond =
     common * rates.common +
@@ -103,24 +130,22 @@ function calculate() {
     epic * rates.epic +
     legendary * rates.legendary;
 
-  const daily = ratePerSecond * secondsPerDay;
+  const daily = ratePerSecond * secondsPerDay * effectiveMult;
 
-  const daily30 = daily * 30;
-  const daily50 = daily * 50;
+  document.getElementById("propertyMult").textContent =
+    `Property Multiplier: ${baseMult}×`;
 
-  document.getElementById("zero").textContent =
-    `0× Bonus: $${daily.toFixed(6)} / day`;
-  document.getElementById("thirty").textContent =
-    `30× Bonus: $${daily30.toFixed(6)} / day`;
-  document.getElementById("fifty").textContent =
-    `50× Bonus: $${daily50.toFixed(6)} / day`;
+  document.getElementById("badgeBoost").textContent =
+    `Passport Boost: ${(boost * 100).toFixed(0)}%`;
 
-  document.getElementById("zeroTime").textContent =
-    `0× Bonus: ${formatTime(1 / daily)}`;
-  document.getElementById("thirtyTime").textContent =
-    `30× Bonus: ${formatTime(1 / daily30)}`;
-  document.getElementById("fiftyTime").textContent =
-    `50× Bonus: ${formatTime(1 / daily50)}`;
+  document.getElementById("effectiveMult").textContent =
+    `Effective Multiplier: ${effectiveMult.toFixed(2)}×`;
+
+  document.getElementById("daily").textContent =
+    `Daily Earnings: $${daily.toFixed(6)}`;
+
+  document.getElementById("timeToDollar").textContent =
+    `Time to $1: ${formatTime(1 / daily)}`;
 }
 
 document.querySelectorAll("input").forEach(input =>
